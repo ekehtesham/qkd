@@ -349,7 +349,7 @@ class QKDProtocol(multiprocessing.Process):
 				print("Eve sends to Bob as Alice's", format(str(NO_OF_QUBITS)), "encoded Qubits")
 			
 			print("Bob generates", format(str(NO_OF_QUBITS)), "random Basis")
-			print("Bob receives and decode Alice's", format(str(NO_OF_QUBITS)), "Qubits")
+			print("Bob receives and decode Alice's", format(str(NO_OF_QUBITS)), "encoded Qubits")
 
 			print(" ")
 			print(" ")
@@ -360,10 +360,10 @@ class QKDProtocol(multiprocessing.Process):
 QBERs = list()
 
 #number of cycles in a QKD simulation
-NO_OF_CYCLES = 10
+NO_OF_CYCLES = 1000
 
 #number of qubits in a QKD simulation
-NO_OF_QUBITS = 5
+NO_OF_QUBITS = 10
 
 #scenario of eve
 EVE_EXIST = True
