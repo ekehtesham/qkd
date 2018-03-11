@@ -173,20 +173,32 @@ def GenerateRandomBits(no_of_qubits):
 	return var	
 
 #static method for converting bits and basis into classical symbols
-def ConvertToSymbols(varList, isBasis):
+def ConvertToSymbols(listOfBits, listOfBasis, isBasis):
 	var = list()
 	if isBasis:
 		for i in range(NO_OF_QUBITS):
-			if not varList[i]:
+			if not listOfBits[i]:
 				var.append("+")
 			else:
 				var.append("X")
 	else:
 		for i in range(NO_OF_QUBITS):
-			if not varList[i]:
-				var.append("|")
+
+			#for basis = 1, lets consider its standard basis
+			if not listOfBasis[i]:
+				#Standard Basis
+				if not listOfBits[i]:
+					var.append("|")
+				else:
+					var.append("━")
+
+			#for basis = 0, lets consider its hadamard basis
 			else:
-				var.append("-")
+				#Hadamard Basis
+				if not listOfBits[i]:
+					var.append("╱")
+				else:
+					var.append("╲")
 	return var	
 
 def ClearScreen():
@@ -205,8 +217,8 @@ class QKDProtocol(multiprocessing.Process):
 		alice = User("Alice")
 		aliceBasis = GenerateRandomBits(NO_OF_QUBITS)
 		aliceBits = GenerateRandomBits(NO_OF_QUBITS)
-		aliceSymBasis = ConvertToSymbols(aliceBasis, True)
-		aliceSymBits = ConvertToSymbols(aliceBits, False)
+		aliceSymBasis = ConvertToSymbols(aliceBasis, aliceBasis, True)
+		aliceSymBits = ConvertToSymbols(aliceBits, aliceBasis, False)
 		qubits = alice.SendQubits(aliceBits, aliceBasis)
 		aliceQubits = qubits
 
@@ -214,16 +226,16 @@ class QKDProtocol(multiprocessing.Process):
 			eve = User("Eve")
 			eveBasis = GenerateRandomBits(NO_OF_QUBITS)
 			eveBits = eve.ReceiveQubits(qubits, eveBasis)
-			eveSymBasis = ConvertToSymbols(eveBasis, True)
-			eveSymBits = ConvertToSymbols(eveBits, False)
+			eveSymBasis = ConvertToSymbols(eveBasis, eveBasis, True)
+			eveSymBits = ConvertToSymbols(eveBits, eveBasis, False)
 			qubits = eve.SendQubits(eveBits, eveBasis)
 			eveQubits = qubits
 
 		bob = User("Bob")
 		bobBasis = GenerateRandomBits(NO_OF_QUBITS)
 		bobBits = bob.ReceiveQubits(qubits, bobBasis)
-		bobSymBasis = ConvertToSymbols(bobBasis, True)
-		bobSymBits = ConvertToSymbols(bobBits, False)
+		bobSymBasis = ConvertToSymbols(bobBasis, bobBasis, True)
+		bobSymBits = ConvertToSymbols(bobBits, bobBasis, False)
 		
 		aliceKey = list()
 		bobKey = list()
