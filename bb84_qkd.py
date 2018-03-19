@@ -7,7 +7,7 @@
 @contact	: ehtesham_khan@live.com
 @github		: @ekehtesham
 @created on	: Sat 27 Jan 2018
-@updated on	: Thu 09 Mar 2018
+@updated on	: Mon 19 Mar 2018
 
 """
 
@@ -217,10 +217,6 @@ class QKDProtocol(multiprocessing.Process):
 	def saveListToFile(self,file_name,list_name):
 		with open(file_name+'.txt','ab') as text_file:
 			np.savetxt(text_file, ["Avg. QBER: %s \r\n" % list_name], fmt='%s')
-		'''with open(file_name+'.txt', 'wb') as text_file:
-			pickle.write(list_name, text_file, protocol=pickle.HIGHEST_PROTOCOL)
-			#print("QBERs: {}".format(list_name), file=text_file)
-		return 0'''
 
 	def Execute(self):
 		alice = User("Alice")
