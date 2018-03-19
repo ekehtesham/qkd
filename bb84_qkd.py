@@ -19,6 +19,7 @@ import statistics as st
 import matplotlib.pyplot as plt
 import pandas as pd
 import multiprocessing
+import pickle
 import os
 
 """
@@ -213,6 +214,14 @@ class QKDProtocol(multiprocessing.Process):
 	def __init__(self):
 		multiprocessing.Process.__init__(self)
 
+	def saveListToFile(self,file_name,list_name):
+		with open(file_name+'.txt','ab') as text_file:
+			np.savetxt(text_file, ["Avg. QBER: %s \r\n" % list_name], fmt='%s')
+		'''with open(file_name+'.txt', 'wb') as text_file:
+			pickle.write(list_name, text_file, protocol=pickle.HIGHEST_PROTOCOL)
+			#print("QBERs: {}".format(list_name), file=text_file)
+		return 0'''
+
 	def Execute(self):
 		alice = User("Alice")
 		aliceBasis = GenerateRandomBits(NO_OF_QUBITS)
@@ -291,17 +300,16 @@ class QKDProtocol(multiprocessing.Process):
 			else:
 				key = True
 				length = len(bobKey)
+				QBERs.append(0)
+
+				if not SILENT:
+					print("QBER		: 0 %")
 				
 				if not SILENT:
 					print("Successfully exchanged key!")
 					print("Key Length 	: " + str(length))
 					print("Key 		:", aliceKey)
-				
-			QBERs.append(0)
 			
-			if not SILENT:
-				print("QBER		: 0 %")
-
 		if LOG and not SILENT:
 			print(" ")
 			print(" ")
@@ -372,7 +380,7 @@ class QKDProtocol(multiprocessing.Process):
 QBERs = list()
 
 #number of cycles in a QKD simulation
-NO_OF_CYCLES = 1000
+NO_OF_CYCLES = 50000
 
 #number of qubits in a QKD simulation
 NO_OF_QUBITS = 10
@@ -384,7 +392,7 @@ EVE_EXIST = True
 LOG = True
 
 #graph only
-SILENT = False
+SILENT = True
 
 ClearScreen()
 
@@ -406,15 +414,19 @@ for i in range(NO_OF_CYCLES):
 
 
 if SILENT:
-	print(NO_OF_CYCLES, "Cycle(s) successfully executed! Generating Plot...")
+	print(len(QBERs), "Cycle(s) successfully executed! Generating Plot...")
+
 
 avg = np.round(st.mean(QBERs),2)
 print("Avg. QBER =", avg, "≈", int(np.round(avg,0)))
 
-#plotting
-df = pd.DataFrame({'cycle': range(NO_OF_CYCLES), 'qber': QBERs})
+#exporting results
+qkd.saveListToFile('bb84_qkd_results', avg)
 
-for x in range(NO_OF_CYCLES):
+#plotting results
+df = pd.DataFrame({'cycle': range(len(QBERs)), 'qber': QBERs})
+
+for x in range(len(QBERs)):
 	scatterPlot = plt.scatter(x, QBERs[x], c=(0,0,1), s=7, label='QBER')
 
 if NO_OF_CYCLES > 1:
@@ -426,7 +438,7 @@ if NO_OF_CYCLES > 1:
 
 plt.xlabel("CYCLE(S)")
 plt.ylabel("QBER (%)")
-plt.title("QBER of BB84 for " + str(NO_OF_CYCLES) + " Cycle(s) of " + str(NO_OF_QUBITS) + " Qubit(s) Per Cycle")
+plt.title("QBER of BB84 for " + str(len(QBERs)) + " Cycle(s) of " + str(NO_OF_QUBITS) + " Qubit(s) Per Cycle")
 
 handles, labels = plt.gca().get_legend_handles_labels()
 by_label = OrderedDict(zip(labels, handles))
