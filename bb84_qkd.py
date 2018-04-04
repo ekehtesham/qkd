@@ -7,7 +7,7 @@
 @contact	: ehtesham_khan@live.com
 @github		: @ekehtesham
 @created on	: Sat 27 Jan 2018
-@updated on	: Mon 19 Mar 2018
+@updated on	: Tue 20 Mar 2018
 
 """
 
@@ -21,6 +21,7 @@ import pandas as pd
 import multiprocessing
 import pickle
 import os
+import datetime
 
 """
 Standard Basis |0> 	   	 & |1>       for the rectilinear basis.
@@ -123,13 +124,11 @@ class User():
 		for i in range(len(listOfBits)):
 			#for basis = 1, lets consider its standard basis
 			if not listOfBasis[i]:
-				#print("Standard", " no=", i, " qubit=", listOfBits[i], " basis=", listOfBasis[i])
 				#Standard Measurement
 				qubits.append(listOfBits[i].StandardMeasurement())
 
 			#for basis = 0, lets consider its hadamard basis
 			else:
-				#print("Hadamard", " no=", i, " qubit=", listOfBits[i], " basis=", listOfBasis[i])
 				#Hadamard Measurement
 				listOfBits[i].HadamardMeasurement()
 				qubits.append(listOfBits[i].StandardMeasurement())
@@ -214,9 +213,9 @@ class QKDProtocol(multiprocessing.Process):
 	def __init__(self):
 		multiprocessing.Process.__init__(self)
 
-	def saveListToFile(self,file_name,list_name):
-		with open(file_name+'.txt','ab') as text_file:
-			np.savetxt(text_file, ["Avg. QBER: %s \r\n" % list_name], fmt='%s')
+	def exportDataToFile(self,fileName,data):
+		with open(fileName+'.txt','ab') as textFile:
+			np.savetxt(textFile, ["%s\n" % data], fmt='%s')
 
 	def Execute(self):
 		alice = User("Alice")
@@ -280,7 +279,7 @@ class QKDProtocol(multiprocessing.Process):
 				if aliceKey[i] != bobKey[i]:
 					errorQubit += 1
 			
-			qber = round(errorQubit / len(aliceKey),4)*100
+			qber = np.round((errorQubit / len(aliceKey)),5)*100
 			QBERs.append(qber)
 	
 			if not SILENT:
@@ -376,7 +375,7 @@ class QKDProtocol(multiprocessing.Process):
 QBERs = list()
 
 #number of cycles in a QKD simulation
-NO_OF_CYCLES = 50000
+NO_OF_CYCLES = 100
 
 #number of qubits in a QKD simulation
 NO_OF_QUBITS = 10
@@ -385,7 +384,7 @@ NO_OF_QUBITS = 10
 EVE_EXIST = True
 
 #logging
-LOG = True
+LOG = False
 
 #graph only
 SILENT = True
@@ -396,7 +395,7 @@ ClearScreen()
 qkd = QKDProtocol()
 
 if SILENT:
-	print("Executing", NO_OF_CYCLES, "Cycle(s) of", NO_OF_QUBITS, "Qubit(s)... Please wait!")
+	print("Executing", NO_OF_CYCLES, "Cycle(s) of", NO_OF_QUBITS, "Qubit(s)... Please wait!", datetime.datetime.now())
 
 for i in range(NO_OF_CYCLES):
 	if not SILENT:
@@ -410,14 +409,13 @@ for i in range(NO_OF_CYCLES):
 
 
 if SILENT:
-	print(len(QBERs), "Cycle(s) successfully executed! Generating Plot...")
-
+	print(len(QBERs), "Cycle(s) successfully executed! Generating Plot...", datetime.datetime.now())
 
 avg = np.round(st.mean(QBERs),2)
-print("Avg. QBER =", avg, "≈", int(np.round(avg,0)))
+print("Avg. QBER =", avg, "≈", int(np.round(avg,0)), datetime.datetime.now())
 
-#exporting results
-qkd.saveListToFile('bb84_qkd_results', avg)
+#exporting results into text file
+qkd.exportDataToFile('bb84_qkd_results', avg)
 
 #plotting results
 df = pd.DataFrame({'cycle': range(len(QBERs)), 'qber': QBERs})
