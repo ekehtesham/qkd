@@ -375,7 +375,7 @@ class QKDProtocol(multiprocessing.Process):
 QBERs = list()
 
 #number of cycles in a QKD simulation
-NO_OF_CYCLES = 100
+NO_OF_CYCLES = 1000
 
 #number of qubits in a QKD simulation
 NO_OF_QUBITS = 10
